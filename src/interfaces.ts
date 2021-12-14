@@ -1,4 +1,6 @@
-export interface MyPluginSettings {}
+export interface MyPluginSettings {
+  template: string;
+}
 
 interface Person {
   name: string;
