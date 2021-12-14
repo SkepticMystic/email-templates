@@ -1,4 +1,11 @@
 ## Changelog
+### [0.0.5](https://github.com/SkepticMystic/email-templates/compare/0.0.4...0.0.5) (2021-12-14)
+
+
+### Fixes
+
+* :bug: {{from}} is not an array ([974f618](https://github.com/SkepticMystic/email-templates/commit/974f618a43732c6eedfe4f63ef8fb9fe42d2153b))
+
 ### [0.0.4](https://github.com/SkepticMystic/email-templates/compare/0.0.3...0.0.4) (2021-12-14)
 
 
