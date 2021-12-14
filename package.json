@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "emails",
 	"version": "0.0.2",
-	"description": "This is a sample plugin for Obsidian.",
+	"description": "Bring emails into Obsidian with ease",
 	"main": "main.js",
 	"scripts": {
 		"dev": "rollup --config rollup.config.js -w",
@@ -11,6 +11,14 @@
 	"standard-version": {
 		"t": "",
 		"types": [
+			{
+				"type": "feat",
+				"section": "Features"
+			},
+			{
+				"type": "fix",
+				"section": "Fixes"
+			},
 			{
 				"type": "docs",
 				"section": "Documentation"
