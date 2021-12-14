@@ -1,6 +1,6 @@
 {
 	"name": "emails",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"description": "Bring emails into Obsidian with ease",
 	"main": "main.js",
 	"scripts": {
