@@ -1,10 +1,11 @@
-import { Plugin } from "obsidian";
-import { DEFAULT_SETTINGS, DEFAULT_TEMPLATE } from "./consts";
-import { ParsedEML, MyPluginSettings } from "./interfaces";
-import { SettingTab } from "./SettingTab";
 import emlFormat from "eml-format";
 import * as fs from "fs/promises";
 import * as Handelbars from "handlebars";
+import { cloneDeep } from "lodash";
+import { Editor, Plugin } from "obsidian";
+import { DEFAULT_SETTINGS } from "./consts";
+import { MyPluginSettings, ParsedEML } from "./interfaces";
+import { SettingTab } from "./SettingTab";
 
 export default class MyPlugin extends Plugin {
   settings: MyPluginSettings;
@@ -14,19 +15,22 @@ export default class MyPlugin extends Plugin {
     this.addSettingTab(new SettingTab(this.app, this));
 
     this.addCommand({
-      id: "parse-email",
-      name: "Parse Email",
-      callback: async () => {
+      id: "import-email",
+      name: "Import Email",
+      editorCallback: async (editor: Editor) => {
         const file = await selectFile();
-        console.log({ file });
 
-        let parsedEML = await this.parseEML(file[0].path);
-        parsedEML = this.postProcessParsedEML(parsedEML);
+        const parsedEML = await this.parseEML(file[0].path);
+        const postProcessed = this.postProcessParsedEML(parsedEML);
 
         const template = Handelbars.compile(
-          postProcessTemplate(DEFAULT_TEMPLATE)
+          postProcessTemplate(this.settings.template)
         );
-        console.log(template(parsedEML));
+
+        const output = template(postProcessed);
+        console.log({ output });
+
+        editor.replaceRange(output, editor.getCursor("to"));
       },
     });
   }
@@ -53,33 +57,42 @@ export default class MyPlugin extends Plugin {
   }
 
   postProcessParsedEML(parsedEML: ParsedEML) {
-    parsedEML.attachments.forEach((attachment, i) => {
+    const copy = cloneDeep(parsedEML);
+    copy.attachments.forEach((attachment, i) => {
       const name = attachment.contentType
         .match(/; name=".+?"/g)?.[0]
         .match(/; name="(.+?)"/)?.[1];
-      console.log({ name });
-      parsedEML.attachments[i].name = name;
+
+      copy.attachments[i].name = name;
     });
 
-    parsedEML.to = [parsedEML.to].flat(10);
-    return parsedEML;
+    copy.date = copy.date.toLocaleDateString();
+
+    copy.to = [copy.to].flat(10);
+    return copy;
   }
 }
 
-const commaListTemplate = (arr: string, inner: string, condition = "true") =>
+const commaListTemplate = (arr: string, inner: string) =>
   `{{#each ${arr}}}${inner}{{#unless @last}}, {{/unless}}{{/each}}`;
 
 function postProcessTemplate(template: string) {
   template = template
     .replaceAll(
-      "{{to}}",
+      "{{from}}",
+      commaListTemplate("from", "{{this.name}} ({{this.email}})")
+    )
+    .replaceAll("{{from.name}}", commaListTemplate("from", "{{this.name}}"))
+    .replaceAll("{{from.email}}", commaListTemplate("from", "{{this.email}}"))
+    .replaceAll(
+      "{{from}}",
       commaListTemplate("to", "{{this.name}} ({{this.email}})")
     )
     .replaceAll("{{to.name}}", commaListTemplate("to", "{{this.name}}"))
     .replaceAll("{{to.email}}", commaListTemplate("to", "{{this.email}}"))
     .replaceAll(
       "{{attachments}}",
-      commaListTemplate("attachments", "{{this.name}}")
+      "{{#each attachments}}{{#if this.name}}{{this.name}}{{#unless @last}}, {{/unless}}{{/if}}{{/each}}"
     );
 
   return template;
