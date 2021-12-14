@@ -21,13 +21,14 @@ export default class MyPlugin extends Plugin {
         const file = await selectFile();
 
         const parsedEML = await this.parseEML(file[0].path);
-        const postProcessed = this.postProcessParsedEML(parsedEML);
+        const postProcessedEML = this.postProcessParsedEML(parsedEML);
 
-        const template = Handelbars.compile(
-          postProcessTemplate(this.settings.template)
+        const postProcessedTemplate = postProcessTemplate(
+          this.settings.template
         );
+        const template = Handelbars.compile(postProcessedTemplate);
 
-        const output = template(postProcessed);
+        const output = template(postProcessedEML);
         console.log({ output });
 
         editor.replaceRange(output, editor.getCursor("to"));
@@ -77,15 +78,10 @@ const commaListTemplate = (arr: string, inner: string) =>
   `{{#each ${arr}}}${inner}{{#unless @last}}, {{/unless}}{{/each}}`;
 
 function postProcessTemplate(template: string) {
-  template = template
+  return template
+    .replaceAll("{{from}}", "{{from.name}} ({{from.email}})")
     .replaceAll(
-      "{{from}}",
-      commaListTemplate("from", "{{this.name}} ({{this.email}})")
-    )
-    .replaceAll("{{from.name}}", commaListTemplate("from", "{{this.name}}"))
-    .replaceAll("{{from.email}}", commaListTemplate("from", "{{this.email}}"))
-    .replaceAll(
-      "{{from}}",
+      "{{to}}",
       commaListTemplate("to", "{{this.name}} ({{this.email}})")
     )
     .replaceAll("{{to.name}}", commaListTemplate("to", "{{this.name}}"))
@@ -94,8 +90,6 @@ function postProcessTemplate(template: string) {
       "{{attachments}}",
       "{{#each attachments}}{{#if this.name}}{{this.name}}{{#unless @last}}, {{/unless}}{{/if}}{{/each}}"
     );
-
-  return template;
 }
 
 /**
