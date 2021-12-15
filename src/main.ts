@@ -59,7 +59,7 @@ export default class MyPlugin extends Plugin {
 
   postProcessParsedEML(parsedEML: ParsedEML) {
     const copy = cloneDeep(parsedEML);
-    copy.attachments.forEach((attachment, i) => {
+    copy.attachments?.forEach((attachment, i) => {
       const name = attachment.contentType
         .match(/; name=".+?"/g)?.[0]
         .match(/; name="(.+?)"/)?.[1];
@@ -67,7 +67,7 @@ export default class MyPlugin extends Plugin {
       copy.attachments[i].name = name;
     });
 
-    copy.date = copy.date.toLocaleDateString();
+    copy.date = copy.date?.toLocaleDateString();
 
     copy.to = [copy.to].flat(10);
     return copy;
