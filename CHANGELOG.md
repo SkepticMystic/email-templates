@@ -1,4 +1,11 @@
 ## Changelog
+### [0.0.6](https://github.com/SkepticMystic/email-templates/compare/0.0.5...0.0.6) (2021-12-15)
+
+
+### Fixes
+
+* :bug: Not all emails have attachments or dates (fix [#1](https://github.com/SkepticMystic/email-templates/issues/1)) ([b034615](https://github.com/SkepticMystic/email-templates/commit/b03461572c0bcc97a2a7199b9bd8b5b0a5d5c49e))
+
 ### [0.0.5](https://github.com/SkepticMystic/email-templates/compare/0.0.4...0.0.5) (2021-12-14)
 
 
